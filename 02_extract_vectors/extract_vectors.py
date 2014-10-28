@@ -60,6 +60,7 @@ def main():
             os.path.splitext(os.path.basename(words_filename))[0] + '.pkl')
         if not os.path.isfile(space_filename):
             logging.error('{0} not found: ignoring'.format(space_filename ))
+            continue
 
         context_filename = hashlib.md5(spaces_dir).hexdigest() + '.txt'
         context_words = load_context_vocab(context_filename)

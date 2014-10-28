@@ -48,7 +48,6 @@ class AnimatedScatter(object):
         self.viewport = self.find_viewport() * 1.2
         #np.array([-0.2, 0.8, -0.2, 0.8])*self.scale_factor
         self.datalim = 0.9 * self.viewport
-        print 'datalim', self.datalim
 
         self.not_in_space = np.array([self.viewport[1]*2,self.viewport[3]*2])
         # Setup the figure and axes...
@@ -62,15 +61,12 @@ class AnimatedScatter(object):
         left_bottom = None
         right_top  = None
         for sp in self.spaces:
-            print sp.cooccurrence_matrix.mat.shape
             for v in np.array(sp.cooccurrence_matrix.mat):
-                print v
                 if left_bottom is None or right_top is None:
                     left_bottom = v
                     right_top = v
                 left_bottom = np.minimum(v, left_bottom)
                 right_top = np.maximum(v, right_top)
-        print left_bottom, right_top
         return np.array([left_bottom[0],right_top[0],left_bottom[1],right_top[1]])
 
     def setup_plot(self):
@@ -138,8 +134,6 @@ class AnimatedScatter(object):
         txt_pos = np.zeros(ret.shape)
         left_bottom = np.array([self.datalim[0], self.datalim[2]])
         right_top = np.array([self.datalim[1], self.datalim[3]])
-        print 'left_bottom', left_bottom
-        print 'right_top', right_top
         for i,xy in enumerate(ret):
             txt_pos[i] = xy + (xy - center) * scale
             #clip to area
@@ -186,7 +180,7 @@ class AnimatedScatter(object):
 
         self.scat.set_offsets(data[:2,:].transpose())
         x,y,x_txt,y_txt  = data
-        self.year_text.s = year
+        self.year_text.set_text(year)
         for i,(x_i,y_i,x_txt_i,y_txt_i) in enumerate(zip(x,y,x_txt,y_txt)):
             self.annotations[i].xy = (x_i,y_i)
             self.annotations[i].xytext = (x_txt_i,y_txt_i)
