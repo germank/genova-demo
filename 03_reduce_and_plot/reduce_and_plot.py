@@ -45,10 +45,12 @@ class AnimatedScatter(object):
         self.vocab = list(set.union(*[set(sp.id2row) for sp in spaces])|
             {self.center_word})
         self.stream = self.data_stream()
-        self.viewport = np.array([-0.2, 0.8, -0.2, 0.8])*self.scale_factor
+        self.viewport = self.find_viewport() * 1.2
+        #np.array([-0.2, 0.8, -0.2, 0.8])*self.scale_factor
         self.datalim = 0.9 * self.viewport
+        print 'datalim', self.datalim
 
-        self.not_in_space = np.array([50,50])
+        self.not_in_space = np.array([self.viewport[1]*2,self.viewport[3]*2])
         # Setup the figure and axes...
         self.fig, self.ax = plt.subplots()
         # Then setup FuncAnimation.
@@ -56,16 +58,30 @@ class AnimatedScatter(object):
                                         frames=(len(spaces)-1)*self.transition_length-1,
                                            init_func=self.setup_plot)
 
+    def find_viewport(self):
+        left_bottom = None
+        right_top  = None
+        for sp in self.spaces:
+            print sp.cooccurrence_matrix.mat.shape
+            for v in np.array(sp.cooccurrence_matrix.mat):
+                print v
+                if left_bottom is None or right_top is None:
+                    left_bottom = v
+                    right_top = v
+                left_bottom = np.minimum(v, left_bottom)
+                right_top = np.maximum(v, right_top)
+        print left_bottom, right_top
+        return np.array([left_bottom[0],right_top[0],left_bottom[1],right_top[1]])
+
     def setup_plot(self):
         """Initial drawing of the scatter plot."""
         year,(x, y,x_txt,y_txt) = next(self.stream)
-        print 'USING YEAR', year
-        self.year_text = self.ax.text((self.viewport[0]+self.viewport[1])/2, (self.viewport[2]+self.viewport[3])/2,year, horizontalalignment='center',
+        self.year_text = self.ax.text((self.viewport[0]+self.viewport[1])/2, (self.viewport[2]+self.viewport[3])/2 + (self.viewport[3]-self.viewport[2])/4,year, horizontalalignment='center',
             fontsize=36)
         self.scat = self.ax.scatter(x, y)
         self.annotations = []
         for label,x_i,y_i,x_i_txt,y_i_txt in zip(self.vocab, x, y,x_txt, y_txt):
-            an = plt.annotate(                                                                                                                                                                                                      
+            an = plt.annotate(
                 label.decode('utf-8'),
                 color = 'brown' if label == self.center_word else 'black',
                 xy = (x_i, y_i), xytext = (x_i_txt, y_i_txt), size=13,
@@ -93,6 +109,8 @@ class AnimatedScatter(object):
                 yield y,(1-a) * x0 + a * x1
 
     def data_points(self):
+        center = np.array( [(self.viewport[0] + self.viewport[1])/2,
+            (self.viewport[2] + self.viewport[3])/2])
         for i,(year,sp) in enumerate(zip(self.years,self.spaces)):
             coords = []
             logging.debug('Extracting data of space {0}'.format(i))
@@ -101,7 +119,7 @@ class AnimatedScatter(object):
             for j,w in enumerate(self.vocab):
                 logging.debug('Obtaining word: {0}'.format(w))
                 if w in sp.id2row:
-                    coord = sp.get_row(w).mat - center_coord
+                    coord = center + (sp.get_row(w).mat - center_coord)
                     logging.debug('Coordinates found: {0}'.format(
                         np.array(coord)[0]))
                     coords.append(np.array(coord)[0])
@@ -118,8 +136,10 @@ class AnimatedScatter(object):
     def get_label_positions(self, ret, scale=1):
         center = np.mean(ret[np.array(self.present_words)], axis=0)
         txt_pos = np.zeros(ret.shape)
-        left_bottom = np.array(self.datalim[0], self.datalim[2])
-        right_top = np.array(self.datalim[1], self.datalim[3])
+        left_bottom = np.array([self.datalim[0], self.datalim[2]])
+        right_top = np.array([self.datalim[1], self.datalim[3]])
+        print 'left_bottom', left_bottom
+        print 'right_top', right_top
         for i,xy in enumerate(ret):
             txt_pos[i] = xy + (xy - center) * scale
             #clip to area
@@ -213,7 +233,7 @@ def main():
     def figure_out_year(space_filename):
         try:
             basename = os.path.basename(space_filename)
-            year = basename.split("_")
+            year = basename.split("_")[1]
             if len(year) == 3:
                 return "1" + year
             else:
