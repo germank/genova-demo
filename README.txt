@@ -1,5 +1,16 @@
 Configuration:
 1. Create .config file like ITA.config with all the relevant paths filled in
+Variables:
+PYTHON: path to the python interpreter
+BIN_SPACES_DIR: path to the spaces in bin format
+PKL_SPACES_DIR: path to the spaces in pkl format
+SPACES_ORDER: a file containing the names of the pkl spaces in the right order
+GLOBAL_VEC: the bin space with global data
+USE_GLOBAL: true if want to use GLOBAL_VEC to extract nearest neighbours.
+false otherwise
+NUM_NEIGHBOURS: the number of neighbours to extract per space (or in total for
+the global)
+
 2. Run ./use_config.sh passing as the argument the desired configuration file.
     e.g. 
         ./use_config.sh ITA.config

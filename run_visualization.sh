@@ -24,12 +24,12 @@ else
 fi
 
 pushd 01_extract_neighbours
-./extract_neighbours.sh $GLOBAL_CMD $BIN_SPACES_DIR $PKL_SPACES_DIR $WORD $NUM_NEIGHBOURS
+#./extract_neighbours.sh $GLOBAL_CMD $BIN_SPACES_DIR $PKL_SPACES_DIR $WORD $NUM_NEIGHBOURS
 popd
 
 pushd 02_extract_vectors
-$PYTHON extract_vectors.py $PKL_SPACES_DIR \
-    ../01_extract_neighbours/output/$WORD
+#$PYTHON extract_vectors.py $PKL_SPACES_DIR \
+#    ../01_extract_neighbours/output/$WORD
 popd
 
 pushd 03_reduce_and_plot
