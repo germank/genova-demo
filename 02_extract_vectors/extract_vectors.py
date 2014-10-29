@@ -5,8 +5,8 @@ import os.path
 import glob
 import hashlib
 import os, errno
-import logging
 import argparse
+import logging
 logging.basicConfig(level=logging.DEBUG, format='%(message)s')
 
 def mkdir_p(path):

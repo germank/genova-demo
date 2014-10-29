@@ -24,7 +24,7 @@ else
 fi
 
 pushd 01_extract_neighbours
-./extract_neighbours.sh $GLOBAL_CMD $BIN_SPACES_DIR $PKL_SPACES_DIR $WORD $NUM_NEIGHBOURS
+./extract_neighbours.sh $GLOBAL_CMD $BIN_SPACES_DIR $PKL_SPACES_DIR $WORD $NUM_NEIGHBOURS "$PYTHON" $MIN_OCCURRENCES
 popd
 
 pushd 02_extract_vectors

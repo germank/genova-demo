@@ -45,7 +45,10 @@ class AnimatedScatter(object):
         self.vocab = list(set.union(*[set(sp.id2row) for sp in spaces])|
             {self.center_word})
         self.stream = self.data_stream()
-        self.viewport = self.find_viewport() * 1.2
+        #the viewport is the double of the points' bounding box
+        #since the target word will be put in the center
+        self.viewport = self.find_bounding_box() * 2
+        logging.info('vieport found: {0}'.format(self.viewport))
         #np.array([-0.2, 0.8, -0.2, 0.8])*self.scale_factor
         self.datalim = 0.9 * self.viewport
 
@@ -57,7 +60,7 @@ class AnimatedScatter(object):
                                         frames=(len(spaces)-1)*self.transition_length-1,
                                            init_func=self.setup_plot)
 
-    def find_viewport(self):
+    def find_bounding_box(self):
         left_bottom = None
         right_top  = None
         for sp in self.spaces:
@@ -72,7 +75,7 @@ class AnimatedScatter(object):
     def setup_plot(self):
         """Initial drawing of the scatter plot."""
         year,(x, y,x_txt,y_txt) = next(self.stream)
-        self.year_text = self.ax.text((self.viewport[0]+self.viewport[1])/2, (self.viewport[2]+self.viewport[3])/2 + (self.viewport[3]-self.viewport[2])/4,year, horizontalalignment='center',
+        self.year_text = self.ax.text((self.viewport[0]+self.viewport[1])/2, (self.viewport[2]+self.viewport[3])/2 + (self.viewport[3]-self.viewport[2])/4,year, horizontalalignment='center',color='gray',
             fontsize=36)
         self.scat = self.ax.scatter(x, y)
         self.annotations = []

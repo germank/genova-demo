@@ -10,6 +10,8 @@ USE_GLOBAL: true if want to use GLOBAL_VEC to extract nearest neighbours.
 false otherwise
 NUM_NEIGHBOURS: the number of neighbours to extract per space (or in total for
 the global)
+MIN_OCCURRENCES:  number of times a word must occur in any space to be
+considered in the plot
 
 2. Run ./use_config.sh passing as the argument the desired configuration file.
     e.g. 
@@ -25,10 +27,8 @@ Python libraries:
 numpy
 scipy
 composes toolkit
-networkx
-PyGraphviz?
+networkx (soon to be removed)
 
 System libraries:
 ffmpeg
 libSDL-1.2
-graphviz?
