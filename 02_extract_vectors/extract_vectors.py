@@ -22,11 +22,12 @@ def mkdir_p(path):
 
 
 
-def load_context_vocab(context_filename):
+def load_context_vocab(context_filename, spaces_dir):
     logging.info('Using {0} contents as context words to build a comparable'
     ' space'.format(context_filename))
     if not os.path.isfile(context_filename):
         logging.info('{0} not found: building...'.format(context_filename))
+	space_filenames = glob.glob(os.path.join(spaces_dir, '*.pkl'))
         words = []
         for space_filename in space_filenames:
             sp = io_utils.load(space_filename)
@@ -63,7 +64,7 @@ def main():
             continue
 
         context_filename = hashlib.md5(spaces_dir).hexdigest() + '.txt'
-        context_words = load_context_vocab(context_filename)
+        context_words = load_context_vocab(context_filename, spaces_dir)
 
         logging.debug('Processing {0}'.format(space_filename))
         sp = io_utils.load(space_filename)
