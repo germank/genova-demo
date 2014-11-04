@@ -218,16 +218,21 @@ def vstack(s1, s2):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('space_dir')
-    ap.add_argument('spaces_order')
-    ap.add_argument('target_word')
+    ap.add_argument('--export-only', action='store_true', default=False)
+    ap.add_argument('space_dir', help='Directory where the DISSECT spaces are '
+    'located')
+    ap.add_argument('spaces_order', help='Order in time of the spaces (no '
+    'relevant effect when exporting)')
+    ap.add_argument('target_word', help='This is the word that we want to '
+    'highlight in the animation (no effect when exporting)')
     args = ap.parse_args()
+
+
     center_word = args.target_word #'cane'
     space_dir = args.space_dir
+    # get the spaces filenames
     space_filenames = [os.path.join(space_dir, os.path.basename(l.strip())) for l in file(args.spaces_order)]
-    #'../03_extract_vectors/output/car'
-    #space_filenames = glob.glob(os.path.join(space_dir, '*.pkl'))[:5]
-    def figure_out_year(space_filename):
+    def guess_year(space_filename):
         try:
             basename = os.path.basename(space_filename)
             year = basename.split("_")[1]
@@ -239,23 +244,45 @@ def main():
             #We don't want to take any chances with this feature: if it doesn't
             #work, tough luck
             return ""
-    years = map(figure_out_year, space_filenames)
+    # guess the years
+    years = map(guess_year, space_filenames)
+    # load the spaces
     spaces = map(lambda f: io_utils.load(f), space_filenames)
 
+    # put together all the spaces adding the year to each of the words
+    # to avoid repetitions (the words are unique)
     stacked = None
     for sp,space_filename in zip(spaces, space_filenames):
         stacked = vstack(stacked, add_year(sp,
         os.path.basename(space_filename)))
 
+    # Find a mapping to 2D (in this case we are finding the mapping to 2D by
+    # actually finding the 2D coordinates of the vectors, but one could 
+    # find such a mapping by other means, and then apply it to get the 
+    # vector coordinates)
     stacked = stacked.apply(Svd(2))
 
+
+    # Apply the mapping (given by the stacked space) to obtain the 2D vectors.
+    # As explained below, now this is redundant, but it does not necessarily
+    # need to be the case
     transformed_spaces = [PeripheralSpace(stacked, sp.cooccurrence_matrix,
     sp.id2row, sp.row2id) for sp in spaces]
 
-    anim = AnimatedScatter(center_word,years, transformed_spaces, stacked,
-    scale_factor=40)
-    mkdir_p('output')
-    anim.save('output/{0}.mp4'.format(center_word))
+    if args.export_only:
+        #print the coordinates
+        print ",".join(["year,word,x,y"])
+        for year, sp in zip(years, transformed_spaces):
+            for w in sp.id2row:
+                v = sp.get_row(w).mat
+                print ",".join([year,w,str(v[0,0]), str(v[0,1])])
+
+    else:
+        #produce animation
+        anim = AnimatedScatter(center_word,years, transformed_spaces, stacked,
+        scale_factor=40)
+        mkdir_p('output')
+        anim.save('output/{0}.mp4'.format(center_word))
     
 
 

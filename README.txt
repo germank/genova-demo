@@ -8,6 +8,8 @@ SPACES_ORDER: a file containing the names of the pkl spaces in the right order
 GLOBAL_VEC: the bin space with global data
 USE_GLOBAL: true if want to use GLOBAL_VEC to extract nearest neighbours.
 false otherwise
+EXPORT_ONLY: true if one wants only to obtain a csv file with the words
+coordinates
 NUM_NEIGHBOURS: the number of neighbours to extract per space (or in total for
 the global)
 MIN_OCCURRENCES:  number of times a word must occur in any space to be

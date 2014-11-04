@@ -28,10 +28,15 @@ pushd 01_extract_neighbours
 popd
 
 pushd 02_extract_vectors
-$PYTHON extract_vectors.py $PKL_SPACES_DIR \
-    ../01_extract_neighbours/output/$WORD
+$PYTHON extract_vectors.py $PKL_SPACES_DIR ../01_extract_neighbours/output/$WORD
 popd
 
 pushd 03_reduce_and_plot
-$PYTHON reduce_and_plot.py ../02_extract_vectors/output/$WORD $SPACES_ORDER $WORD
+if ${EXPORT_ONLY:-false}
+then
+    $PYTHON reduce_and_plot.py --export-only ../02_extract_vectors/output/$WORD $SPACES_ORDER $WORD > output/$WORD.csv
+else
+    $PYTHON reduce_and_plot.py ../02_extract_vectors/output/$WORD $SPACES_ORDER $WORD
+fi
+
 popd
